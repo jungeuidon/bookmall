@@ -8,7 +8,7 @@ import kr.co.itcen.bookmall.vo.CartVo;
 public class CartDaoTest {
 
 	public static void main(String[] args) {
-		insertCart();
+//		insertCart();
 		selectCart();
 
 	}
@@ -30,7 +30,7 @@ public class CartDaoTest {
 		System.out.println("select");
 		CartDao dao = new CartDao();
 		List<CartVo> list = dao.getList();
-		System.out.println(list);
+		System.out.println("카트목록");
 		for(CartVo cart : list) {
 			System.out.println(cart);
 		}

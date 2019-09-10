@@ -30,7 +30,7 @@ public class MemberDaoTest {
 	private static void selectMem() {
 		MemberDao dao = new MemberDao();
 		List<MemberVo> list = dao.getList();
-		System.out.println(list);
+		System.out.println("고객목록");
 		for(MemberVo member : list) {
 			System.out.println(member);
 		}

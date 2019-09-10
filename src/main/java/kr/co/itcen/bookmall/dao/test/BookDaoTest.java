@@ -8,7 +8,7 @@ import kr.co.itcen.bookmall.vo.BookVo;
 public class BookDaoTest {
 
 	public static void main(String[] args) {
-			insertBook();
+//			insertBook();
 			selectBook();
 
 		}
@@ -28,10 +28,9 @@ public class BookDaoTest {
 		}
 		
 		private static void selectBook() {
-			System.out.println("select");
 			BookDao dao = new BookDao();
 			List<BookVo> list = dao.getList();
-			System.out.println(list);
+			System.out.println("도서목록");
 			for(BookVo book : list) {
 				System.out.println(book);
 			}

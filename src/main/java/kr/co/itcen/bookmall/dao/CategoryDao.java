@@ -26,7 +26,7 @@ public class CategoryDao {
 			// 2. 연결하기
 			String url = "jdbc:mariadb://192.168.1.40:3306/bookmall?characterEncoding=utf8";
 			conn = DriverManager.getConnection(url, "bookmall", "bit1234");
-			System.out.println("연결성공!");
+//			System.out.println("연결성공!");
 
 		} catch (ClassNotFoundException e) {
 			System.out.println("Fail to Loading Driver:" + e);

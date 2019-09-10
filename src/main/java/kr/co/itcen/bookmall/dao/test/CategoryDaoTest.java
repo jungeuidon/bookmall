@@ -28,6 +28,7 @@ public class CategoryDaoTest {
 	private static void selectCategory() {
 		CategoryDao dao = new CategoryDao();
 		List<CategoryVo> list = dao.getList();
+		System.out.println("카테고리목록");
 		for(CategoryVo category : list) {
 			System.out.println(category);
 		}

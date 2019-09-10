@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import kr.co.itcen.bookmall.vo.OrderBookVo;
 import kr.co.itcen.bookmall.vo.OrderVo;
 
 public class OrderDao {
@@ -26,7 +27,7 @@ public class OrderDao {
 			// 2. 연결하기
 			String url = "jdbc:mariadb://192.168.1.40:3306/bookmall?characterEncoding=utf8";
 			conn = DriverManager.getConnection(url, "bookmall", "bit1234");
-			System.out.println("연결성공!");
+//			System.out.println("연결성공!");
 
 		} catch (ClassNotFoundException e) {
 			System.out.println("Fail to Loading Driver:" + e);
@@ -39,6 +40,9 @@ public class OrderDao {
 		boolean b = false;
 		String Strprice = null;  //총가격
 		String user_no = null;
+		String o_no =null; //주문번호
+		String c_book_no =null;  //책 번호
+		String c_cnt =null; //책별 수량
 		try {
 			conn = getConn();
 
@@ -56,24 +60,62 @@ public class OrderDao {
 			
 			//price 받아오고 형변환
 			int price = Integer.parseInt(Strprice);
-			System.out.println(user_no);
-			String sql = "insert into orders values(?,?,?,?)";
+			System.out.println( "63행 고객번호" + user_no);
+			String sql = "insert into orders values(null,?,?,?)";
 			pstmt = conn.prepareStatement(sql);
 
-			pstmt.setString(1, vo1.getNo());  //주문고유번호
-			pstmt.setString(2, vo1.getUser_no());		//고객번호
-			pstmt.setString(3, Strprice);	 			//총가격
-			pstmt.setString(4, vo1.getAddr());
+//			pstmt.setString(1, vo1.getNo());  //주문고유번호
+			pstmt.setString(1, vo1.getUser_no());		//고객번호
+			pstmt.setString(2, Strprice);	 			//총가격
+			pstmt.setString(3, vo1.getAddr());
 			
-			System.out.println("dddd1");
-			int cnt = pstmt.executeUpdate();
-			System.out.println("dddd2");
 			
-			if (cnt !=0 ) {
-				System.out.println("insert 성공!!");
+			int ordercnt = pstmt.executeUpdate();
+			
+			if (ordercnt !=0 ) {
+				System.out.println("oInsert 성공!!");
 				b = true;
 			} else {
-				System.out.println("insert 실패 !!");
+				System.out.println("oInsert 실패 !!");
+			}
+			
+			String orderbooksql = "select o.no, c.book_no, c.cnt from cart c, orders o where c.user_no = o.user_no";
+			pstmt = conn.prepareStatement(orderbooksql);
+			
+			rs = pstmt.executeQuery();
+			
+			List<OrderBookVo> list = new ArrayList<OrderBookVo>(); 
+			while (rs.next()) {
+				OrderBookVo bVo = new OrderBookVo(); 
+				o_no = rs.getString(1); // 주문번호
+				c_book_no = rs.getString(2); // 책 번호
+				c_cnt = rs.getString(3); // 책별 수량
+				
+				bVo.setC_book_no(c_book_no);
+				bVo.setO_no(o_no);
+				bVo.setC_cnt(c_cnt);
+				
+				list.add(bVo);
+			}
+			System.out.println(o_no + " " + c_book_no + " " + c_cnt);
+			
+			String orderBsql ="insert into order_book values(?,?,?)";  //주문도서
+			pstmt = conn.prepareStatement(orderBsql);
+			
+			int orderBcnt =0;
+			
+			for(OrderBookVo bVo : list) {
+				pstmt.setString(1, bVo.getC_book_no());   //book_no
+				pstmt.setString(2, bVo.getC_cnt());   //cnt
+				pstmt.setString(3, bVo.getO_no());  //order_no
+				orderBcnt = pstmt.executeUpdate();
+			}
+			
+			if (orderBcnt !=0 ) {
+				System.out.println("oBinsert 성공!!");
+				b = true;
+			} else {
+				System.out.println("oBinsert 실패 !!");
 			}
 
 		} catch (SQLException e) {
@@ -116,6 +158,49 @@ public class OrderDao {
 				vo.setUser_no(user_no);
 				vo.setPrice(price);
 				vo.setAddr(addr);
+
+				list.add(vo);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+				if (pstmt != null)
+					pstmt.close();
+				if (conn != null)
+					conn.close();
+
+			} catch (SQLException e2) {
+				e2.printStackTrace();
+			}
+		}
+
+		return list;
+	}
+
+	public List<OrderBookVo> orderBookList() {
+		List<OrderBookVo> list = new ArrayList<OrderBookVo>();
+
+		try {
+			conn = getConn();
+			String sql = "select book_no, cnt, order_no from order_book";
+
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				String c_book_no = rs.getString(1);
+				String c_cnt = rs.getString(2);
+				String o_no = rs.getString(3);
+				
+				
+				OrderBookVo vo = new OrderBookVo();
+				vo.setO_no(o_no);
+				vo.setC_book_no(c_book_no);
+				vo.setC_cnt(c_cnt);
 
 				list.add(vo);
 			}
